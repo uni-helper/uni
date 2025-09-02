@@ -5,7 +5,7 @@
 <a href="https://www.npmjs.com/package/@uni-helper/uni"><img src="https://img.shields.io/npm/dm/@uni-helper/uni?colorA=005947&colorB=eee&style=for-the-badge"></a>
 <a href="https://www.npmjs.com/package/@uni-helper/uni"><img src="https://img.shields.io/npm/v/@uni-helper/uni?colorA=005947&colorB=eee&style=for-the-badge"></a>
 
-# [WIP]由 [uni-helper](https://uni-helper.js.org) 封装的uni命令
+# 由 [uni-helper](https://uni-helper.js.org) 封装的uni命令
 
 ## 安装
 
