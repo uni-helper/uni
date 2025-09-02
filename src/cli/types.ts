@@ -1,4 +1,3 @@
-import type { UniHelperConfig } from '../config/types'
 /**
  * 支持的命令类型
  */

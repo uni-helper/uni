@@ -17,7 +17,7 @@ export default defineConfig({
       console.log('build')
     },
     dev(param: string) {
-      console.log('-----啊啊---dev--------', param)
+      console.log('-----dev-----', param)
     },
   },
   autoGenerate: {

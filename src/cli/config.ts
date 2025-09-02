@@ -30,6 +30,6 @@ export async function loadCliConfig(): Promise<UniHelperConfig> {
     defaults: DEFAULT_CONFIG,
     merge: false,
   })
-  
+
   return config
 }

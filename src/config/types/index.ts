@@ -32,18 +32,18 @@ export interface UniHelperConfig {
     dev?: (inputPlatform: string) => void | Promise<void>
   }
   autoGenerate?: {
-    /** 
+    /**
      * 自动生成的文件输出目录
      * @default 'src'
      */
     outDir?: string
-    /** 
-     * 是否自动生成pages.json 
+    /**
+     * 是否自动生成pages.json
      * @default false
      */
     pages?: boolean | CommandType
-    /** 
-     * 是否自动生成manifest.json 
+    /**
+     * 是否自动生成manifest.json
      * @default false
      */
     manifest?: boolean | CommandType

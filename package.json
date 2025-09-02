@@ -40,9 +40,9 @@
     "build": "tsdown",
     "dev": "tsdown --watch ./src",
     "lint": "eslint",
-    "prepublishOnly": "nr build",
+    "lint:fix": "eslint --fix",
+    "prepublishOnly": "pnpm build",
     "release": "bumpp && pnpm publish",
-    "start": "tsx src/index.ts",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "prepare": "simple-git-hooks"
