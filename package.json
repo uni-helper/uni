@@ -42,7 +42,7 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "prepublishOnly": "pnpm build",
-    "release": "bumpp && pnpm publish",
+    "release": "bumpp",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "prepare": "simple-git-hooks"
