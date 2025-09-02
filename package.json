@@ -44,7 +44,6 @@
     "prepublishOnly": "pnpm build",
     "release": "bumpp",
     "test": "vitest",
-    "typecheck": "tsc --noEmit",
     "prepare": "simple-git-hooks"
   },
   "dependencies": {
