@@ -1,6 +1,7 @@
 import type { Platform } from '../../constant'
 
 type CommandType = 'dev' | 'build' | 'install'
+export type PlatformAlias = Partial<Record<Platform, string[] | string>>
 
 /**
  * uni 助手配置
@@ -21,7 +22,7 @@ export interface UniHelperConfig {
      * 平台别名
      * 用于自定义配置不同平台的别名，
      */
-    alias?: Partial<Record<Platform, string[]>>
+    alias?: PlatformAlias
   }
   prepare?: {
     /** 安装依赖时执行 */

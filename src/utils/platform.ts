@@ -1,4 +1,4 @@
-import type { Platform } from '../constant'
+import type { PlatformAlias } from '../config/types'
 
 /**
  * 解析平台别名
@@ -8,7 +8,7 @@ import type { Platform } from '../constant'
  */
 export function resolvePlatformAlias(
   input: string,
-  aliasConfig: Partial<Record<Platform, string[]>> = {},
+  aliasConfig: PlatformAlias,
 ): string {
   // 如果没有别名配置，直接返回原值
   if (!aliasConfig || Object.keys(aliasConfig).length === 0) {
@@ -17,8 +17,17 @@ export function resolvePlatformAlias(
 
   // 检查是否是某个平台的别名
   for (const [platform, aliases] of Object.entries(aliasConfig)) {
-    if (aliases?.includes(input)) {
-      return platform
+    if (typeof aliases === 'string') {
+      // 处理单个字符串的情况
+      if (aliases === input) {
+        return platform
+      }
+    }
+    else if (Array.isArray(aliases)) {
+      // 处理字符串数组的情况
+      if (aliases?.includes(input)) {
+        return platform
+      }
     }
   }
 

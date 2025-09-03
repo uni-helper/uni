@@ -49,6 +49,16 @@ function resolveTargetPlatform(
 }
 
 /**
+ * 判断是否应该在当前阶段自动生成文件
+ */
+function shouldAutoGenerate(
+  configValue: boolean | string | undefined,
+  phase: BuildPhase,
+): boolean {
+  return configValue === true || configValue === phase
+}
+
+/**
  * 生成配置文件
  */
 async function generateConfigFiles(
@@ -67,16 +77,6 @@ async function generateConfigFiles(
   if (shouldGenerateManifest) {
     generateJsonFile(outDir, 'manifest')
   }
-}
-
-/**
- * 判断是否应该在当前阶段自动生成文件
- */
-function shouldAutoGenerate(
-  configValue: boolean | string | undefined,
-  phase: BuildPhase,
-): boolean {
-  return configValue === true || configValue === phase
 }
 
 /**

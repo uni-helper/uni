@@ -1,6 +1,5 @@
 import {defineConfig} from '@uni-helper/uni'
 
-
 export default defineConfig({
   platform: {
     default: 'mp-weixin',
@@ -22,5 +21,6 @@ export default defineConfig({
   },
   autoGenerate: {
     pages: true,
+    manifest: true,
   },
 })

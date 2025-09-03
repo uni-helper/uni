@@ -34,6 +34,33 @@ describe('cLI Core Functions', () => {
       expect(resolvePlatformAlias('weixin', aliasConfig)).toBe('mp-weixin')
       expect(resolvePlatformAlias('wx', aliasConfig)).toBe('mp-weixin')
     })
+
+    it('应该处理字符串类型的别名配置', () => {
+      const aliasConfig = {
+        'h5': 'web',
+        'mp-weixin': 'wechat',
+        'app': 'mobile',
+      }
+
+      expect(resolvePlatformAlias('web', aliasConfig)).toBe('h5')
+      expect(resolvePlatformAlias('wechat', aliasConfig)).toBe('mp-weixin')
+      expect(resolvePlatformAlias('mobile', aliasConfig)).toBe('app')
+      expect(resolvePlatformAlias('unknown', aliasConfig)).toBe('unknown')
+    })
+
+    it('应该处理混合类型的别名配置（字符串和数组）', () => {
+      const aliasConfig = {
+        'h5': ['web', 'html'],
+        'mp-weixin': 'wechat',
+        'app': ['mobile', 'application'],
+      }
+
+      expect(resolvePlatformAlias('web', aliasConfig)).toBe('h5')
+      expect(resolvePlatformAlias('html', aliasConfig)).toBe('h5')
+      expect(resolvePlatformAlias('wechat', aliasConfig)).toBe('mp-weixin')
+      expect(resolvePlatformAlias('mobile', aliasConfig)).toBe('app')
+      expect(resolvePlatformAlias('application', aliasConfig)).toBe('app')
+    })
   })
 
   describe('command Validation', () => {
