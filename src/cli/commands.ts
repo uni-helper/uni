@@ -5,36 +5,24 @@ import { generateJsonFile } from '../utils/files'
 import { resolvePlatformAlias } from '../utils/platform'
 
 /**
- * 处理prepare命令
+ * 生成配置文件
  */
-export async function handlePrepareCommand(config: UniHelperConfig): Promise<void> {
-  // 生成配置文件
-  await generateConfigFiles(config, 'install')
-
-  // 执行自定义安装钩子
-  if (config.prepare?.install) {
-    await config.prepare.install()
-  }
-}
-
-/**
- * 处理构建/开发命令
- */
-export async function handleBuildCommand(
-  command: 'dev' | 'build',
-  argument: string | undefined,
+async function generateConfigFiles(
   config: UniHelperConfig,
+  phase: BuildPhase,
 ): Promise<void> {
-  const platform = resolveTargetPlatform(argument, config)
+  const outDir = config.autoGenerate?.outDir || 'src'
 
-  // 生成配置文件
-  await generateConfigFiles(config, command)
+  const shouldGeneratePages = shouldAutoGenerate(config.autoGenerate?.pages, phase)
+  const shouldGenerateManifest = shouldAutoGenerate(config.autoGenerate?.manifest, phase)
 
-  // 执行自定义钩子
-  await executeCustomHooks(config, command, platform)
+  if (shouldGeneratePages) {
+    generateJsonFile(outDir, 'pages')
+  }
 
-  // 执行uni命令
-  await executeUniCommand(command, platform)
+  if (shouldGenerateManifest) {
+    generateJsonFile(outDir, 'manifest')
+  }
 }
 
 /**
@@ -56,27 +44,6 @@ function shouldAutoGenerate(
   phase: BuildPhase,
 ): boolean {
   return configValue === true || configValue === phase
-}
-
-/**
- * 生成配置文件
- */
-async function generateConfigFiles(
-  config: UniHelperConfig,
-  phase: BuildPhase,
-): Promise<void> {
-  const outDir = config.autoGenerate?.outDir || 'src'
-
-  const shouldGeneratePages = shouldAutoGenerate(config.autoGenerate?.pages, phase)
-  const shouldGenerateManifest = shouldAutoGenerate(config.autoGenerate?.manifest, phase)
-
-  if (shouldGeneratePages) {
-    generateJsonFile(outDir, 'pages')
-  }
-
-  if (shouldGenerateManifest) {
-    generateJsonFile(outDir, 'manifest')
-  }
 }
 
 /**
@@ -115,4 +82,37 @@ async function executeUniCommand(
   catch (error) {
     throw new Error(`Failed to execute uni command: ${error}`)
   }
+}
+
+/**
+ * 处理prepare命令
+ */
+export async function handlePrepareCommand(config: UniHelperConfig): Promise<void> {
+  // 生成配置文件
+  await generateConfigFiles(config, 'install')
+
+  // 执行自定义安装钩子
+  if (config.prepare?.install) {
+    await config.prepare.install()
+  }
+}
+
+/**
+ * 处理构建/开发命令
+ */
+export async function handleBuildCommand(
+  command: 'dev' | 'build',
+  argument: string | undefined,
+  config: UniHelperConfig,
+): Promise<void> {
+  const platform = resolveTargetPlatform(argument, config)
+
+  // 生成配置文件
+  await generateConfigFiles(config, command)
+
+  // 执行自定义钩子
+  await executeCustomHooks(config, command, platform)
+
+  // 执行uni命令
+  await executeUniCommand(command, platform)
 }

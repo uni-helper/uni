@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import type { UniHelperConfig } from '../config/types'
 import type { CommandType } from './types'
 import process from 'node:process'
 import { handleBuildCommand, handlePrepareCommand } from './commands'
@@ -29,7 +30,7 @@ async function main(): Promise<void> {
 async function executeCommand(
   command: CommandType,
   argument: string | undefined,
-  config: Awaited<ReturnType<typeof loadCliConfig>>,
+  config: UniHelperConfig,
 ): Promise<void> {
   switch (command) {
     case 'prepare':
