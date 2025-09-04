@@ -28,6 +28,15 @@ catalogs:
       specifier: ^5.8.2
       version: 5.8.2
   default:
+    blessed:
+      specifier: ^0.1.81
+      version: 0.1.81
+    cross-spawn:
+      specifier: ^7.0.6
+      version: 7.0.6
+    kolorist:
+      specifier: ^1.8.0
+      version: 1.8.0
     unconfig:
       specifier: ^7.3.3
       version: 7.3.3
@@ -39,6 +48,12 @@ catalogs:
       specifier: ^0.1.1
       version: 0.1.1
   types:
+    '@types/blessed':
+      specifier: ^0.1.25
+      version: 0.1.25
+    '@types/cross-spawn':
+      specifier: ^6.0.6
+      version: 6.0.6
     '@types/node':
       specifier: ^22.13.10
       version: 22.13.10
@@ -51,6 +66,15 @@ importers:
 
   .:
     dependencies:
+      blessed:
+        specifier: 'catalog:'
+        version: 0.1.81
+      cross-spawn:
+        specifier: 'catalog:'
+        version: 7.0.6
+      kolorist:
+        specifier: 'catalog:'
+        version: 1.8.0
       unconfig:
         specifier: 'catalog:'
         version: 7.3.3
@@ -58,6 +82,12 @@ importers:
       '@antfu/eslint-config':
         specifier: catalog:cli
         version: 4.10.1(@typescript-eslint/utils@8.26.1(eslint@9.22.0(jiti@2.5.1))(typescript@5.8.2))(@vue/compiler-sfc@3.5.20)(eslint@9.22.0(jiti@2.5.1))(typescript@5.8.2)(vitest@3.0.8(@types/debug@4.1.12)(@types/node@22.13.10)(jsdom@16.7.0)(sass@1.64.2)(terser@5.43.1))
+      '@types/blessed':
+        specifier: catalog:types
+        version: 0.1.25
+      '@types/cross-spawn':
+        specifier: catalog:types
+        version: 6.0.6
       '@types/node':
         specifier: catalog:types
         version: 22.13.10
@@ -1742,6 +1772,12 @@ packages:
   '@types/babel__traverse@7.28.0':
     resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
 
+  '@types/blessed@0.1.25':
+    resolution: {integrity: sha512-kQsjBgtsbJLmG6CJA+Z6Nujj+tq1fcSE3UIowbDvzQI4wWmoTV7djUDhSo5lDjgwpIN0oRvks0SA5mMdKE5eFg==}
+
+  '@types/cross-spawn@6.0.6':
+    resolution: {integrity: sha512-fXRhhUkG4H3TQk5dBhQ7m/JDdSNHKwR2BBia62lhwEIq9xGiQKLxd6LymNhn47SjXhsUEPmxi+PKw2OkW4LLjA==}
+
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
 
@@ -2239,6 +2275,11 @@ packages:
 
   birpc@2.5.0:
     resolution: {integrity: sha512-VSWO/W6nNQdyP520F1mhf+Lc2f8pjGQOtoHHm7Ze8Go1kX7akpVIrtTa0fn+HB0QJEDVacl6aO08YE0PgXfdnQ==}
+
+  blessed@0.1.81:
+    resolution: {integrity: sha512-LoF5gae+hlmfORcG1M5+5XZi4LBmvlXTzwJWzUlPryN/SJdSflZvROM2TwkT0GMpq7oqT48NRd4GS7BiVBc5OQ==}
+    engines: {node: '>= 0.8.0'}
+    hasBin: true
 
   bmp-js@0.1.0:
     resolution: {integrity: sha512-vHdS19CnY3hwiNdkaqk93DvjVLfbEcI8mys4UjuWrlX1haDmroo8o4xCzh4wD6DGV6HxRCyauwhHRqMTfERtjw==}
@@ -3617,6 +3658,9 @@ packages:
   kleur@3.0.3:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
     engines: {node: '>=6'}
+
+  kolorist@1.8.0:
+    resolution: {integrity: sha512-Y+60/zizpJ3HRH8DCss+q95yr6145JXZo46OTpFvDZWLfRCE4qChOyk1b26nMaNpfHHgxagk9dXT5OP0Tfe+dQ==}
 
   lcid@3.1.1:
     resolution: {integrity: sha512-M6T051+5QCGLBQb8id3hdvIW8+zeFV2FyBGFS9IEK5H9Wt4MueD4bW1eWikpHgZp+5xR3l5c8pZUkQsIA0BFZg==}
@@ -7571,6 +7615,14 @@ snapshots:
     dependencies:
       '@babel/types': 7.28.2
 
+  '@types/blessed@0.1.25':
+    dependencies:
+      '@types/node': 24.3.0
+
+  '@types/cross-spawn@6.0.6':
+    dependencies:
+      '@types/node': 24.3.0
+
   '@types/debug@4.1.12':
     dependencies:
       '@types/ms': 2.1.0
@@ -8187,6 +8239,8 @@ snapshots:
   binary-extensions@2.3.0: {}
 
   birpc@2.5.0: {}
+
+  blessed@0.1.81: {}
 
   bmp-js@0.1.0: {}
 
@@ -9848,6 +9902,8 @@ snapshots:
       json-buffer: 3.0.1
 
   kleur@3.0.3: {}
+
+  kolorist@1.8.0: {}
 
   lcid@3.1.1:
     dependencies:

@@ -1,6 +1,8 @@
 import type { UniHelperConfig } from '../config/types'
-import type { BuildPhase } from './types'
+import type { Platform } from '../constant'
+import type { BuildPhase, CommandType } from './types'
 import process from 'node:process'
+import { UniHelperTerminalUi } from '../ui'
 import { generateJsonFile } from '../utils/files'
 import { resolvePlatformAlias } from '../utils/platform'
 
@@ -51,7 +53,7 @@ function shouldAutoGenerate(
  */
 async function executeCustomHooks(
   config: UniHelperConfig,
-  command: 'dev' | 'build',
+  command: CommandType,
   platform: string,
 ): Promise<void> {
   if (command === 'dev' && config.prepare?.dev) {
@@ -60,6 +62,10 @@ async function executeCustomHooks(
 
   if (command === 'build' && config.prepare?.build) {
     await config.prepare.build(platform)
+  }
+
+  if (command === 'prepare' && config.prepare?.install) {
+    await config.prepare.install()
   }
 }
 
@@ -85,6 +91,21 @@ async function executeUniCommand(
 }
 
 /**
+ * 启动终端UI
+ */
+async function startTerminalUI(platform: Platform): Promise<void> {
+  const terminalUi = new UniHelperTerminalUi()
+  // const index = PLATFORM.findIndex(platform)
+  terminalUi.render()
+  terminalUi.startPlatform(platform)
+  terminalUi.selectPlatform(platform)
+  process.on('SIGTERM', () => {
+    terminalUi.cleanup()
+    process.exit(0)
+  })
+}
+
+/**
  * 处理prepare命令
  */
 export async function handlePrepareCommand(config: UniHelperConfig): Promise<void> {
@@ -92,27 +113,48 @@ export async function handlePrepareCommand(config: UniHelperConfig): Promise<voi
   await generateConfigFiles(config, 'install')
 
   // 执行自定义安装钩子
-  if (config.prepare?.install) {
-    await config.prepare.install()
-  }
+  await executeCustomHooks(config, 'prepare', '')
 }
 
 /**
  * 处理构建/开发命令
  */
 export async function handleBuildCommand(
-  command: 'dev' | 'build',
   argument: string | undefined,
   config: UniHelperConfig,
 ): Promise<void> {
   const platform = resolveTargetPlatform(argument, config)
 
   // 生成配置文件
-  await generateConfigFiles(config, command)
+  await generateConfigFiles(config, 'build')
 
   // 执行自定义钩子
-  await executeCustomHooks(config, command, platform)
+  await executeCustomHooks(config, 'build', platform)
 
   // 执行uni命令
-  await executeUniCommand(command, platform)
+  await executeUniCommand('build', platform)
+}
+
+/**
+ * 处理开发命令
+ */
+export async function handleDevCommand(
+  argument: string | undefined,
+  config: UniHelperConfig,
+): Promise<void> {
+  const platform = resolveTargetPlatform(argument, config)
+
+  // 生成配置文件
+  await generateConfigFiles(config, 'dev')
+
+  // 执行自定义钩子
+  await executeCustomHooks(config, 'dev', platform)
+
+  // 执行uni命令
+  if (config.ui) {
+    await startTerminalUI(platform as Platform)
+  }
+  else {
+    await executeUniCommand('dev', platform)
+  }
 }

@@ -3,7 +3,7 @@
 import type { UniHelperConfig } from '../config/types'
 import type { CommandType } from './types'
 import process from 'node:process'
-import { handleBuildCommand, handlePrepareCommand } from './commands'
+import { handleBuildCommand, handleDevCommand, handlePrepareCommand } from './commands'
 import { loadCliConfig } from './config'
 import { parseCommandLineArgs } from './parser'
 
@@ -35,12 +35,14 @@ async function executeCommand(
   switch (command) {
     case 'prepare':
       await handlePrepareCommand(config)
-      process.exit(0)
+      break
 
-    // eslint-disable-next-line no-fallthrough
     case 'dev':
+      await handleDevCommand(argument, config)
+      break
+
     case 'build':
-      await handleBuildCommand(command, argument, config)
+      await handleBuildCommand(argument, config)
       break
 
     default:

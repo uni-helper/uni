@@ -49,4 +49,9 @@ export interface UniHelperConfig {
      */
     manifest?: boolean | CommandType
   }
+  /**
+   * 是否启用终端UI
+   * @default true
+   */
+  ui?: boolean
 }
