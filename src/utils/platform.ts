@@ -25,7 +25,7 @@ export function resolvePlatformAlias(
     }
     else if (Array.isArray(aliases)) {
       // 处理字符串数组的情况
-      if (aliases?.includes(input)) {
+      if (aliases.includes(input)) {
         return platform
       }
     }
