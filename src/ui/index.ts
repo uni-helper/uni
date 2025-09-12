@@ -9,7 +9,10 @@ export class UniHelperTerminalUi {
   private platformBox!: blessed.Widgets.ListElement
   private terminalBox!: blessed.Widgets.Log
   private infoBox!: blessed.Widgets.BoxElement
-  private currentProcess: ChildProcess | null = null
+  private processMap: Map<string, ChildProcess> = new Map()
+  private currentProcess: ChildProcess | undefined
+  private currentPlatform: string | undefined
+  private platformOutputMap: Map<string, string[]> = new Map() // 存储每个平台的输出历史
 
   private padding = {
     left: 2,
@@ -20,7 +23,7 @@ export class UniHelperTerminalUi {
 
   constructor() {
     this.screen = blessed.screen({
-      smartCSR: true,
+      // smartCSR: true,
       fullUnicode: true,
     })
 
@@ -60,7 +63,7 @@ export class UniHelperTerminalUi {
     // 创建右侧终端输出区域 - 使用log组件支持ANSI颜色
     this.terminalBox = blessed.log({
       parent: this.screen,
-      label: 'Terminal Output',
+      label: '终端输出',
       border: 'line',
       padding: this.padding,
       top: 0,
@@ -73,13 +76,25 @@ export class UniHelperTerminalUi {
       wrap: true,
       keys: true,
       vi: true,
+      mouse: true, // 启用鼠标支持
       scrollback: 1000, // 增加滚动缓冲区大小
+      style: {
+        scrollbar: {
+          bg: 'blue',
+          fg: 'white',
+        },
+        focus: {
+          border: {
+            fg: 'green',
+          },
+        },
+      },
     })
 
     // 创建底部系统信息区域
     this.infoBox = blessed.box({
       parent: this.screen,
-      label: 'System Information',
+      label: '系统信息',
       border: 'line',
       padding: this.padding,
       top: '70%',
@@ -91,13 +106,26 @@ export class UniHelperTerminalUi {
   }
 
   private setupKeyHandlers(): void {
-    this.screen.key(['escape', 'q', 'C-c'], () => {
+    this.screen.key(['C-c'], () => {
       this.cleanup()
       process.exit(0)
     })
 
+    this.screen.key(['escape', 'q'], () => {
+      if (!this.currentPlatform)
+        return
+      if (this.processMap.has(this.currentPlatform)) {
+        this.processMap.get(this.currentPlatform)?.kill('SIGKILL')
+        this.processMap.delete(this.currentPlatform)
+      }
+      if (this.platformOutputMap.has(this.currentPlatform)) {
+        this.platformOutputMap.delete(this.currentPlatform)
+      }
+    })
+
     this.platformBox.on('select', (item) => {
       const platform = item.content
+      this.currentPlatform = platform
       this.startPlatform(platform)
     })
   }
@@ -110,48 +138,78 @@ export class UniHelperTerminalUi {
   }
 
   startPlatform(platform: string): void {
-    // Stop any running process
-    if (this.currentProcess) {
-      this.currentProcess.kill('SIGTERM')
-    }
-
     this.screen.render()
 
-    // Start new process
-    this.currentProcess = spawn('uni', ['dev', '-p', platform], {
-      stdio: 'pipe',
-      shell: true,
-    })
+    // 清理之前进程的事件监听器
+    if (this.currentProcess) {
+      this.currentProcess.stdout?.removeAllListeners('data')
+      this.currentProcess.stderr?.removeAllListeners('data')
+      this.currentProcess.removeAllListeners('close')
+      this.currentProcess.removeAllListeners('error')
+    }
 
-    // 清空日志并显示启动信息
-    this.terminalBox.setContent('')
+    if (this.processMap.has(platform)) {
+      this.currentProcess = this.processMap.get(platform)
+    }
+    else {
+      // Start new process
+      this.currentProcess = spawn('uni', ['dev', '-p', platform], {
+        stdio: 'pipe',
+        shell: true,
+      })
+      this.processMap.set(platform, this.currentProcess)
+      // 初始化新平台的输出历史
+      if (!this.platformOutputMap.has(platform)) {
+        this.platformOutputMap.set(platform, [])
+      }
+    }
+
+    // 恢复该平台的输出历史，而不是清空
+    this.restorePlatformOutput(platform)
+
+    // 修改终端标题显示当前平台
+    this.terminalBox.setLabel(` 终端输出 - ${platform} `)
+
+    // 重新绑定事件监听器，无论进程是新创建的还是已存在的
+    this.setupProcessListeners(platform)
+  }
+
+  private setupProcessListeners(platform: string): void {
+    if (!this.currentProcess)
+      return
 
     this.currentProcess.stdout?.on('data', (data) => {
-      // 直接输出原始数据，保留ANSI颜色代码
       const text = data.toString()
       const lines = text.split('\n')
       lines.forEach((line: string) => {
         if (line.trim()) {
-          // blessed.log会自动处理ANSI转义序列
           this.terminalBox.log(`${line}`)
+          // 保存到该平台的输出历史
+          const history = this.platformOutputMap.get(platform) || []
+          history.push(line)
+          this.platformOutputMap.set(platform, history)
         }
       })
       this.screen.render()
     })
 
     this.currentProcess.stderr?.on('data', (data) => {
-      // 错误输出 - 保留原始ANSI颜色，同时添加红色标记
       const text = data.toString()
       const lines = text.split('\n')
       lines.forEach((line: string) => {
         if (line.trim()) {
-          // 如果错误输出没有颜色，添加红色前缀
+          let formattedLine: string
           if (!line.includes('\x1B[')) {
-            this.terminalBox.log(`{red-fg}[ERROR] ${line}{/red-fg}`)
+            formattedLine = `{red-fg}[ERROR] ${line}{/red-fg}`
           }
           else {
-            this.terminalBox.log(line)
+            formattedLine = line
           }
+          this.terminalBox.log(formattedLine)
+          // 保存到该平台的输出历史
+          const history = this.platformOutputMap.get(platform) || []
+          history.push(formattedLine)
+          this.platformOutputMap.set(platform, history)
         }
       })
       this.screen.render()
@@ -159,16 +217,43 @@ export class UniHelperTerminalUi {
 
     this.currentProcess.on('close', (code) => {
       const statusColor = code === 0 ? 'green' : 'red'
-      this.terminalBox.log(`{${statusColor}-fg}Process exited with code: ${code}{/${statusColor}-fg}`)
-      this.terminalBox.log(`{green-fg}${'='.repeat(50)}{/green-fg}`)
+      const closeMessage = `{${statusColor}-fg}Process exited with code: ${code}{/${statusColor}-fg}`
+      const separator = `{green-fg}${'='.repeat(50)}{/green-fg}`
+
+      this.terminalBox.log(closeMessage)
+      this.terminalBox.log(separator)
+
+      // 保存关闭信息到历史
+      const history = this.platformOutputMap.get(platform) || []
+      history.push(closeMessage)
+      history.push(separator)
+      this.platformOutputMap.set(platform, history)
+
       this.screen.render()
-      this.currentProcess = null
+      this.currentProcess = undefined
     })
 
     this.currentProcess.on('error', (error) => {
-      this.terminalBox.log(`{red-fg}Failed to start: ${error.message}{/red-fg}`)
+      const errorMessage = `{red-fg}Failed to start: ${error.message}{/red-fg}`
+      this.terminalBox.log(errorMessage)
+
+      // 保存错误信息到历史
+      const history = this.platformOutputMap.get(platform) || []
+      history.push(errorMessage)
+      this.platformOutputMap.set(platform, history)
+
       this.screen.render()
-      this.currentProcess = null
+      this.currentProcess = undefined
+    })
+  }
+
+  private restorePlatformOutput(platform: string): void {
+    const history = this.platformOutputMap.get(platform) || []
+
+    // 恢复该平台的输出历史
+    this.terminalBox.setContent('')
+    history.forEach((line) => {
+      this.terminalBox.log(line)
     })
   }
 
